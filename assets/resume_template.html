@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{name}} - 简历</title>
+<style>
+  :root {
+    --primary: #003366;
+    --text: #333333;
+    --text-light: #555555;
+    --bg: #ffffff;
+    --border: #e0e0e0;
+    --accent-bg: #f5f7fa;
+    --tag-bg: #e8edf3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    background: #f0f0f0;
+    line-height: 1.6;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    background: var(--bg);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background: var(--primary);
+    color: #fff;
+    padding: 32px 40px 28px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    margin-top: 6px;
+    opacity: 0.9;
+  }
+  .header .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 14px;
+    font-size: 13px;
+  }
+  .header .contact span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Body */
+  .body {
+    padding: 24px 40px 32px;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 20px;
+  }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Summary */
+  .summary-text {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.8;
+  }
+
+  /* Experience / Education items */
+  .exp-item {
+    margin-bottom: 14px;
+  }
+  .exp-item:last-child { margin-bottom: 0; }
+  .exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .exp-header .role {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .exp-header .company {
+    font-size: 14px;
+    color: var(--text-light);
+  }
+  .exp-header .date {
+    font-size: 13px;
+    color: #999;
+    white-space: nowrap;
+  }
+  .exp-details {
+    list-style: none;
+    padding: 0;
+  }
+  .exp-details li {
+    position: relative;
+    padding-left: 16px;
+    font-size: 13.5px;
+    color: var(--text-light);
+    margin-bottom: 3px;
+    line-height: 1.7;
+  }
+  .exp-details li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: bold;
+  }
+
+  /* Skills */
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .skill-tag {
+    background: var(--tag-bg);
+    color: var(--text);
+    padding: 4px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Projects */
+  .project-item {
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    background: var(--accent-bg);
+    border-radius: 4px;
+    border-left: 3px solid var(--primary);
+  }
+  .project-item:last-child { margin-bottom: 0; }
+  .project-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .project-tech {
+    font-size: 12px;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+  .project-desc {
+    font-size: 13px;
+    color: var(--text-light);
+  }
+
+  /* Print */
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>{{name}}</h1>
+    <div class="subtitle">{{target_position}} | {{years}}年经验</div>
+    <div class="contact">
+      <span>📧 {{email}}</span>
+      <span>📱 {{phone}}</span>
+      {{#github}}<span>🐙 {{github}}</span>{{/github}}
+      {{#linkedin}}<span>💼 {{linkedin}}</span>{{/linkedin}}
+      <span>📍 {{location}}</span>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Summary -->
+    {{#summary}}
+    <div class="section">
+      <div class="section-title">个人简介</div>
+      <p class="summary-text">{{summary}}</p>
+    </div>
+    {{/summary}}
+
+    <!-- Skills -->
+    {{#skills}}
+    <div class="section">
+      <div class="section-title">专业技能</div>
+      <div class="skills-grid">
+        {{#skills}}
+        <span class="skill-tag">{{.}}</span>
+        {{/skills}}
+      </div>
+    </div>
+    {{/skills}}
+
+    <!-- Work Experience -->
+    {{#experience}}
+    <div class="section">
+      <div class="section-title">工作经历</div>
+      {{#experience}}
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <span class="role">{{role}}</span>
+            <span class="company"> — {{company}}</span>
+          </div>
+          <span class="date">{{date}}</span>
+        </div>
+        <ul class="exp-details">
+          {{#details}}
+          <li>{{.}}</li>
+          {{/details}}
+        </ul>
+      </div>
+      {{/experience}}
+    </div>
+    {{/experience}}
+
+    <!-- Projects -->
+    {{#projects}}
+    <div class="section">
+      <div class="section-title">项目经验</div>
+      {{#projects}}
+      <div class="project-item">
+        <div class="project-name">{{name}}</div>
+        {{#tech}}<div class="project-tech">{{tech}}</div>{{/tech}}
+        <div class="project-desc">{{description}}</div>
+      </div>
+      {{/projects}}
+    </div>
+    {{/projects}}
+
+    <!-- Education -->
+    {{#education}}
+    <div class="section">
+      <div class="section-title">教育背景</div>
+      <div class="exp-item">
+        <div class="exp-header">
+          <div>
+            <span class="role">{{degree}}</span>
+            <span class="company"> — {{school}}</span>
+          </div>
+          <span class="date">{{date}}</span>
+        </div>
+        {{#edu_note}}
+        <ul class="exp-details">
+          <li>{{edu_note}}</li>
+        </ul>
+        {{/edu_note}}
+      </div>
+    </div>
+    {{/education}}
+
+  </div>
+</div>
+</body>
+</html>
