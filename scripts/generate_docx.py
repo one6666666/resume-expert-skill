@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Resume DOCX Generator — 生成 ATS 兼容的 Word 简历文档
+Resume DOCX Generator — 生成 ATS 兼容的 Word 简历文档（2026 AI 时代版）
 
 用法:
     python generate_docx.py <output_path> <json_data_path>
@@ -8,36 +8,52 @@ Resume DOCX Generator — 生成 ATS 兼容的 Word 简历文档
 JSON 数据格式:
 {
     "name": "张三",
-    "target_position": "高级后端工程师",
+    "target_position": "高级后端工程师（具备 AI Agent 全栈开发经验）",
     "years": "5",
     "email": "zhangsan@example.com",
     "phone": "13800138000",
     "location": "北京",
+    "github": "zhangsan",
+    "portfolio": "https://zhangsan.dev",
     "summary": "个人简介文本...",
-    "skills": ["Java", "Spring Boot", "MySQL", "Redis", "Docker"],
+    "skills": [
+        {"name": "Java", "ai": false},
+        {"name": "Spring AI", "ai": true},
+        {"name": "RAG / MCP", "ai": true}
+    ],
     "experience": [
         {
             "role": "高级Java开发工程师",
             "company": "某科技有限公司",
             "date": "2021.06 - 至今",
+            "product_info": "核心支付平台，日活 50 万+",
             "details": [
                 "主导设计高并发支付系统，日均处理交易100万+，可用性99.99%",
-                "优化核心查询链路，平均响应时间从500ms降至50ms"
+                "将大模型能力融入业务系统，违规内容拦截率提升至98%"
             ]
         }
     ],
     "projects": [
         {
-            "name": "分布式支付平台",
-            "tech": "Java, Spring Cloud, Kafka, Redis, MySQL",
-            "description": "从0到1搭建分布式支付平台，支撑日均百万级交易规模"
+            "name": "AI 超级智能体",
+            "url": "https://agent.example.com",
+            "tech": "Java, Spring AI, LangChain4j, RAG, MCP",
+            "description": "从0到1搭建AI超级智能体平台，支持多模型接入..."
         }
+    ],
+    "other_works": [
+        {"name": "轻量级RPC框架", "tech": "Java, Netty", "highlight": "自研RPC通信协议"}
     ],
     "education": {
         "degree": "计算机科学与技术 本科",
         "school": "某大学",
-        "date": "2015.09 - 2019.06"
-    }
+        "date": "2015.09 - 2019.06",
+        "edu_note": "GPA 3.8/4.0，排名前10% | 校优秀毕业生"
+    },
+    "strengths": [
+        "全栈能力强：已上线10+个可访问产品",
+        "热爱开源：GitHub 2000+ Followers"
+    ]
 }
 
 依赖:
@@ -61,9 +77,11 @@ except ImportError:
 
 # ── 颜色配置 ──
 PRIMARY = RGBColor(0x00, 0x33, 0x66)   # 深蓝
+AI_TAG_COLOR = RGBColor(0x1A, 0x5C, 0x1A)  # AI技能标签绿
 TEXT = RGBColor(0x33, 0x33, 0x33)
 TEXT_LIGHT = RGBColor(0x55, 0x55, 0x55)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+ACCENT = RGBColor(0x66, 0x88, 0xAA)
 
 
 def set_cell_shading(cell, color_hex):
@@ -112,6 +130,19 @@ def add_body_text(doc, text, bold=False, size=10, color=TEXT):
     return p
 
 
+def add_small_text(doc, text, size=9, color=TEXT_LIGHT):
+    """添加小号辅助文本"""
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.font.size = Pt(size)
+    run.font.color.rgb = color
+    run.font.name = '微软雅黑'
+    run._element.rPr.rFonts.set(qn('w:eastAsia'), '微软雅黑')
+    p.paragraph_format.space_after = Pt(1)
+    p.paragraph_format.space_before = Pt(0)
+    return p
+
+
 def add_bullet(doc, text, size=10):
     """添加项目符号条目"""
     p = doc.add_paragraph()
@@ -147,6 +178,50 @@ def add_header_line(doc, text, bold=False, size=11):
     return p
 
 
+def add_header_link(doc, text, size=9):
+    """添加头部链接行"""
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.font.size = Pt(size)
+    run.font.color.rgb = RGBColor(0xCC, 0xDD, 0xFF)
+    run.font.name = '微软雅黑'
+    run._element.rPr.rFonts.set(qn('w:eastAsia'), '微软雅黑')
+    p.paragraph_format.space_after = Pt(0)
+    p.paragraph_format.space_before = Pt(0)
+    return p
+
+
+def add_skill_tags_inline(doc, skills, size=10):
+    """添加技能标签行（AI技能绿色高亮）"""
+    p = doc.add_paragraph()
+
+    for i, skill in enumerate(skills):
+        if isinstance(skill, str):
+            name = skill
+            is_ai = False
+        else:
+            name = skill.get('name', '')
+            is_ai = skill.get('ai', False)
+
+        if i > 0:
+            sep = p.add_run('  ')
+            sep.font.size = Pt(size)
+
+        run = p.add_run(name)
+        run.font.size = Pt(size)
+        run.font.color.rgb = AI_TAG_COLOR if is_ai else TEXT
+        run.font.name = '微软雅黑'
+        run._element.rPr.rFonts.set(qn('w:eastAsia'), '微软雅黑')
+
+        if i < len(skills) - 1:
+            sep2 = p.add_run(' | ')
+            sep2.font.size = Pt(size - 1)
+            sep2.font.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
+
+    p.paragraph_format.space_after = Pt(4)
+    return p
+
+
 def generate_resume(data, output_path):
     """生成简历 DOCX"""
 
@@ -178,7 +253,7 @@ def generate_resume(data, output_path):
     run.font.name = '微软雅黑'
     run._element.rPr.rFonts.set(qn('w:eastAsia'), '微软雅黑')
 
-    subtitle_text = f"{target}  |  {years}年经验" if target and years else target or years
+    subtitle_text = f"{target}  |  {years}年经验" if target and years else target or years or ''
     if subtitle_text:
         add_header_line(header_cell, subtitle_text, size=9)
 
@@ -194,6 +269,18 @@ def generate_resume(data, output_path):
     if contact_parts:
         add_header_line(header_cell, ' | '.join(contact_parts), size=9)
 
+    # 作品集 / GitHub / LinkedIn
+    link_parts = []
+    if data.get('github'):
+        link_parts.append(f"github.com/{data['github']}")
+    if data.get('portfolio'):
+        link_parts.append(f"{data['portfolio']}")
+    if data.get('linkedin'):
+        link_parts.append(data['linkedin'])
+
+    if link_parts:
+        add_header_link(header_cell, ' | '.join(link_parts), size=9)
+
     doc.add_paragraph()  # 间距
 
     # ── 个人简介 ──
@@ -207,8 +294,7 @@ def generate_resume(data, output_path):
     skills = data.get('skills', [])
     if skills:
         add_heading_styled(doc, '专业技能')
-        skills_text = '、'.join(skills)
-        add_body_text(doc, skills_text, size=10)
+        add_skill_tags_inline(doc, skills, size=10)
         doc.add_paragraph()
 
     # ── 工作经历 ──
@@ -220,10 +306,17 @@ def generate_resume(data, output_path):
             role = exp.get('role', '')
             company = exp.get('company', '')
             date = exp.get('date', '')
-            header_text = f"{role} — {company}"
+            product_info = exp.get('product_info', '')
+
+            header_text = f"{role}"
+            if company:
+                header_text += f" — {company}"
             if date:
                 header_text += f"  ({date})"
             add_body_text(doc, header_text, bold=True, size=10, color=TEXT)
+
+            if product_info:
+                add_small_text(doc, f"📦 {product_info}", size=9, color=ACCENT)
 
             for detail in exp.get('details', []):
                 add_bullet(doc, detail, size=10)
@@ -236,16 +329,46 @@ def generate_resume(data, output_path):
         add_heading_styled(doc, '项目经验')
 
         for proj in projects:
-            add_body_text(doc, proj.get('name', '项目名称'), bold=True, size=10, color=PRIMARY)
+            name = proj.get('name', '项目名称')
+            url = proj.get('url', '')
+
+            # 项目名 + 链接
+            name_line = name
+            if url:
+                name_line += f"  [{url}]"
+            add_body_text(doc, name_line, bold=True, size=10, color=PRIMARY)
+
             tech = proj.get('tech', '')
             if tech:
-                add_body_text(doc, f"技术栈：{tech}", size=9, color=PRIMARY)
+                add_small_text(doc, f"技术栈：{tech}", size=9, color=PRIMARY)
 
             desc = proj.get('description', '')
             if desc:
                 add_bullet(doc, desc, size=10)
 
             doc.add_paragraph()
+
+    # ── 其他个人作品 ──
+    other_works = data.get('other_works', [])
+    if other_works:
+        add_heading_styled(doc, '其他个人作品')
+
+        portfolio = data.get('portfolio', '')
+        if portfolio:
+            add_small_text(doc, f"更多项目详见 → {portfolio}", size=9, color=ACCENT)
+
+        for work in other_works:
+            name = work.get('name', '')
+            tech = work.get('tech', '')
+            highlight = work.get('highlight', '')
+            text = f"• {name}"
+            if tech:
+                text += f" ({tech})"
+            if highlight:
+                text += f"：{highlight}"
+            add_small_text(doc, text, size=10, color=TEXT_LIGHT)
+
+        doc.add_paragraph()
 
     # ── 教育背景 ──
     edu = data.get('education', {})
@@ -258,6 +381,19 @@ def generate_resume(data, output_path):
         if date:
             edu_text += f"  ({date})"
         add_body_text(doc, edu_text, size=10)
+
+        edu_note = edu.get('edu_note', '')
+        if edu_note:
+            add_bullet(doc, edu_note, size=10)
+
+        doc.add_paragraph()
+
+    # ── 个人优势 ──
+    strengths = data.get('strengths', [])
+    if strengths:
+        add_heading_styled(doc, '个人优势')
+        for s in strengths:
+            add_bullet(doc, s, size=10)
 
     # 保存
     doc.save(output_path)

@@ -58,6 +58,22 @@
     align-items: center;
     gap: 4px;
   }
+  .header .portfolio-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 8px;
+    font-size: 12px;
+    opacity: 0.85;
+  }
+  .header .portfolio-row a {
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(255,255,255,0.5);
+  }
+  .header .portfolio-row a:hover {
+    border-bottom-color: #fff;
+  }
 
   /* Body */
   .body {
@@ -145,6 +161,11 @@
     font-size: 13px;
     white-space: nowrap;
   }
+  .skill-tag.ai {
+    background: #e8f4e8;
+    color: #1a5c1a;
+    border: 1px solid #b8dbb8;
+  }
 
   /* Projects */
   .project-item {
@@ -155,10 +176,25 @@
     border-left: 3px solid var(--primary);
   }
   .project-item:last-child { margin-bottom: 0; }
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 3px;
+  }
   .project-name {
     font-size: 14px;
     font-weight: 700;
-    margin-bottom: 3px;
+  }
+  .project-url {
+    font-size: 11px;
+    color: var(--primary);
+    text-decoration: none;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+  .project-url:hover {
+    text-decoration: underline;
   }
   .project-tech {
     font-size: 12px;
@@ -168,6 +204,16 @@
   .project-desc {
     font-size: 13px;
     color: var(--text-light);
+  }
+
+  /* Other Works */
+  .other-works {
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.8;
+  }
+  .other-works p {
+    margin-bottom: 2px;
   }
 
   /* Print */
@@ -187,10 +233,15 @@
     <div class="contact">
       <span>📧 {{email}}</span>
       <span>📱 {{phone}}</span>
-      {{#github}}<span>🐙 {{github}}</span>{{/github}}
-      {{#linkedin}}<span>💼 {{linkedin}}</span>{{/linkedin}}
       <span>📍 {{location}}</span>
     </div>
+    {{#portfolio_or_github}}
+    <div class="portfolio-row">
+      {{#github}}<span>🐙 <a href="https://github.com/{{github}}" target="_blank">github.com/{{github}}</a></span>{{/github}}
+      {{#portfolio}}<span>🌐 <a href="{{portfolio}}" target="_blank">作品集</a></span>{{/portfolio}}
+      {{#linkedin}}<span>💼 <a href="{{linkedin}}" target="_blank">LinkedIn</a></span>{{/linkedin}}
+    </div>
+    {{/portfolio_or_github}}
   </div>
 
   <div class="body">
@@ -209,7 +260,7 @@
       <div class="section-title">专业技能</div>
       <div class="skills-grid">
         {{#skills}}
-        <span class="skill-tag">{{.}}</span>
+        <span class="skill-tag{{#ai}} ai{{/ai}}">{{name}}</span>
         {{/skills}}
       </div>
     </div>
@@ -224,10 +275,13 @@
         <div class="exp-header">
           <div>
             <span class="role">{{role}}</span>
-            <span class="company"> — {{company}}</span>
+            {{#company}}<span class="company"> — {{company}}</span>{{/company}}
           </div>
           <span class="date">{{date}}</span>
         </div>
+        {{#product_info}}
+        <div style="font-size:12px; color:#888; margin-bottom:4px;">📦 {{product_info}}</div>
+        {{/product_info}}
         <ul class="exp-details">
           {{#details}}
           <li>{{.}}</li>
@@ -244,13 +298,29 @@
       <div class="section-title">项目经验</div>
       {{#projects}}
       <div class="project-item">
-        <div class="project-name">{{name}}</div>
+        <div class="project-header">
+          <span class="project-name">{{name}}</span>
+          {{#url}}<a class="project-url" href="{{url}}" target="_blank">🔗 {{url}}</a>{{/url}}
+        </div>
         {{#tech}}<div class="project-tech">{{tech}}</div>{{/tech}}
         <div class="project-desc">{{description}}</div>
       </div>
       {{/projects}}
     </div>
     {{/projects}}
+
+    <!-- Other Works -->
+    {{#other_works}}
+    <div class="section">
+      <div class="section-title">其他个人作品</div>
+      <div class="other-works">
+        <p style="font-size:12px; color:#888; margin-bottom:6px;">更多项目详见 👉 <a href="{{portfolio}}" target="_blank">{{portfolio}}</a></p>
+        {{#other_works}}
+        <p>• {{name}} — {{tech}}：{{highlight}}</p>
+        {{/other_works}}
+      </div>
+    </div>
+    {{/other_works}}
 
     <!-- Education -->
     {{#education}}
@@ -272,6 +342,18 @@
       </div>
     </div>
     {{/education}}
+
+    <!-- Personal Strengths -->
+    {{#strengths}}
+    <div class="section">
+      <div class="section-title">个人优势</div>
+      <ul class="exp-details">
+        {{#strengths}}
+        <li>{{.}}</li>
+        {{/strengths}}
+      </ul>
+    </div>
+    {{/strengths}}
 
   </div>
 </div>
